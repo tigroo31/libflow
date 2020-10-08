@@ -1,31 +1,49 @@
-mod packet;
+mod active;
 mod flag;
-mod statistic;
 mod forward_flow;
-mod backward_flow;
+mod packet;
+mod statistic;
 mod sub_flow;
 
-use libpcap_tools;
-use crate::flow::statistic::Statistic;
+use crate::flow::active::Active;
 use crate::flow::forward_flow::ForwardFlow;
-use crate::flow::backward_flow::BackwardFlow;
+use crate::flow::statistic::Statistic;
+use crate::flow::sub_flow::SubFlow;
+use libpcap_tools;
+use std::cmp;
 
-struct Flow<'p> {
+#[derive(Debug, Default)]
+pub struct Flow<'p> {
     flow: libpcap_tools::Flow,
     num_bytes: usize,
     num_packets: usize,
     activity_timeout: u64,
     idle: Statistic,
-    length: Statistic,
+    packet_length: Statistic,
     iat: Statistic,
     bidirectional: bool,
 
-    // TODO create an active struct
-    active: Statistic,
-    active_first_seen: libpcap_tools::Duration,
-    active_last_seen: libpcap_tools::Duration,
+    active: Active,
 
-    forward_flow: ForwardFlow<'p>,
+    forward: ForwardFlow<'p>,
 
-    backward_flow: BackwardFlow<'p>,
+    backward: SubFlow<'p>,
+}
+
+impl<'p> Flow<'p> {
+    pub fn new() -> Self {
+        Flow { ..Default::default() }
+    }
+}
+
+impl<'p> cmp::PartialEq for Flow<'p> {
+    fn eq(&self, other: &Self) -> bool {
+        self.flow == other.flow
+    }
+}
+
+#[test]
+fn test_new() {
+    let flow = Flow::new();
+    assert_eq!(Flow { ..Default::default() }, flow)
 }
