@@ -1,0 +1,20 @@
+[package]
+name = "flow"
+version = "0.1.0"
+authors = ["Pascale Borscia <pascale.borscia@orange.com>",
+           "Frédéric Gardes <frederic.gardes@orange.com>"]
+edition = "2018"
+repository = "https://gitlab.tech.orange/snorky/extractor/libflow"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+log = "0.4"
+# TODO directly use deployed libpcap-tools instead
+libpcap-tools = { version="0.1.0",path="../pcap-analyzer/libpcap-tools" }
+statrs = "0.13.0"
+ordered-float = "2.0"
+
+[dependencies.pcap-parser]
+version = "0.9.3"
+features = ["data"]
