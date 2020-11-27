@@ -11,10 +11,9 @@ repository = "https://gitlab.tech.orange/snorky/extractor/libflow"
 [dependencies]
 log = "0.4"
 # TODO directly use deployed libpcap-tools instead
-libpcap-tools = { version="0.1.0",path="../pcap-analyzer/libpcap-tools" }
+libpcap-tools = { version="0.1.0", path="../pcap-analyzer/libpcap-tools" }
 statrs = "0.13.0"
 ordered-float = "2.0"
-
-[dependencies.pcap-parser]
-version = "0.9.3"
-features = ["data"]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+pcap-parser = { version = "0.9.3", features = ["data"] }
