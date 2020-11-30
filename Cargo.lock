@@ -51,18 +51,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b0fc239e0f6cb375d2402d48afb92f76f5404fd1df208a41930ec81eda078bea"
 
 [[package]]
-name = "flow"
-version = "0.1.0"
-dependencies = [
- "log",
- "ordered-float",
- "pcap-parser",
- "serde",
- "serde_json",
- "statrs",
-]
-
-[[package]]
 name = "generic-array"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -106,6 +94,18 @@ name = "libc"
 version = "0.2.79"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2448f6066e80e3bfc792e9c98bf705b4b0fc6e8ef5b43e5889aff0eaa9c58743"
+
+[[package]]
+name = "libflow"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "ordered-float",
+ "pcap-parser",
+ "serde",
+ "serde_json",
+ "statrs",
+]
 
 [[package]]
 name = "libm"

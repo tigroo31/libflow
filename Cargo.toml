@@ -1,12 +1,17 @@
 [package]
-name = "flow"
+name = "libflow"
 version = "0.1.0"
 authors = ["Pascale Borscia <pascale.borscia@orange.com>",
-           "Frédéric Gardes <frederic.gardes@orange.com>"]
+    "Frédéric Gardes <frederic.gardes@orange.com>"]
+license = "MIT/Apache-2.0"
+description = "library labeling network flow data"
+homepage = "https://github.com/tigroo31/libflow"
+documentation = "https://docs.rs/libflow"
+repository = "https://github.com/tigroo31/libflow.git"
+readme = "README.md"
+keywords = ["network", "pcap", "flow", "path"]
+categories = ["data-structures", "parsing"]
 edition = "2018"
-repository = "https://gitlab.tech.orange/snorky/extractor/libflow"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 log = "0.4"
