@@ -1,14 +1,16 @@
-use crate::flow::Flow;
+use crate::flow::flow_id::FlowId;
+use crate::flow::information::Information;
+use std::collections::HashMap;
 use std::io::Read;
 
 pub struct Generator {}
 
 impl<'p> Generator {
-    pub fn load<R>(reader: R) -> Vec<Flow<'p>>
+    pub fn load<R>(_reader: R) -> HashMap<FlowId, Information>
     where
         R: Read,
     {
         // TODO read the file
-        Vec::new()
+        HashMap::new()
     }
 }
