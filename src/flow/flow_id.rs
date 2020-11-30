@@ -1,4 +1,3 @@
-use libpcap_tools::FiveTuple;
 use serde::Serialize;
 use std::cmp::Ordering::{Equal, Greater, Less};
 use std::hash::{Hash, Hasher};
@@ -62,18 +61,6 @@ impl Hash for FlowId {
                 self.src.hash(state);
                 self.src_port.hash(state);
             }
-        }
-    }
-}
-
-impl From<&FiveTuple> for FlowId {
-    fn from(tuple: &FiveTuple) -> Self {
-        Self {
-            transport_protocol: tuple.proto,
-            src: tuple.src,
-            dst: tuple.dst,
-            src_port: tuple.src_port,
-            dst_port: tuple.dst_port,
         }
     }
 }

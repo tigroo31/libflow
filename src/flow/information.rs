@@ -1,5 +1,5 @@
-use libpcap_tools::Duration;
 use serde::Serialize;
+use std::time::Duration;
 
 #[derive(Debug, Default, PartialEq, Serialize)]
 pub struct Information {
