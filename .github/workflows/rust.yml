@@ -10,13 +10,37 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-
+  rustfmt:
+    name: Rustfmt
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run rustfmt
+        run: cargo fmt -- --check
 
+  build:
+    name: Build
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Build
+    - name: Build source
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+
+  publish_docs:
+    name: Publish documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build documentation
+        run: cargo doc --no-deps
+      - name: Publish documentation
+        run: |
+          cd target/doc
+          git init
+          git add .
+          git -c user.name='tigroo31' -c user.email='tigroo@lilo.org' commit -m init
+          git push -f -q https://git:${{ secrets.github_token }}@github.com/${{ github.repository }} HEAD:gh-pages
+        if: github.event_name == 'push' && github.event.ref == 'refs/heads/master'
+
