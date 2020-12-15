@@ -1,22 +1,19 @@
 [package]
 name = "libflow"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Pascale Borscia <pascale.borscia@orange.com>",
     "Frédéric Gardes <frederic.gardes@orange.com>"]
 license = "MIT/Apache-2.0"
-description = "library labeling network flow data"
+description = "library grouping network flow data"
 homepage = "https://github.com/tigroo31/libflow"
 documentation = "https://docs.rs/libflow"
 repository = "https://github.com/tigroo31/libflow.git"
 readme = "README.md"
-keywords = ["network", "pcap", "flow", "path"]
+keywords = ["network", "flow", "path"]
 categories = ["data-structures", "parsing"]
 edition = "2018"
 
 [dependencies]
 log = "0.4"
-statrs = "0.13.0"
-ordered-float = "2.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-pcap-parser = { version = "0.9.3", features = ["data"] }
