@@ -1,6 +1,6 @@
 # Flow library
 
-Flow library labeling network data.
+Flow library grouping network data.
 
 ## Build
 
@@ -14,17 +14,21 @@ $ rustup component add rustfmt
 $
 ```
 
-* To compile and build the binary and the docker image, just run `./build.sh`
+* To compile and build the library, run `./build.sh`
 
-## Run
-
-### Library
+## Use
 
 Import the library into your Rust development.
+Check the documentation on https://docs.rs/libflow
 
 ## Development
 
+The project stays public.
+
 ### Environment
 
-* Have CLion
-* Configure a CLion shortcut for rustfmt as explained here: https://github.com/rust-lang/rustfmt/blob/master/intellij.md
+Clone the the repository from https://github.com/tigroo31/libflow.git .
+
+### Contribution
+
+See https://github.com/tigroo31/libflow
