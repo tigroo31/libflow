@@ -27,6 +27,22 @@ pub struct FlowId {
     pub dst_port: u16,
 }
 
+impl FlowId {
+    /// Create a Flow Id with IP addresses for src and dest provided as string.
+    pub fn new(transport_protocol: u8, src: &str, dst: &str, src_port: u16, dst_port: u16) -> Self {
+        let src_ip_addr = IpAddr::from_str(src).unwrap();
+        let dst_ip_addr = IpAddr::from_str(dst).unwrap();
+
+        FlowId {
+            transport_protocol,
+            src: src_ip_addr,
+            dst: dst_ip_addr,
+            src_port,
+            dst_port,
+        }
+    }
+}
+
 impl Default for FlowId {
     /// Create a Flow Id with defaults values
     /// and "0.0.0.0" IP addresses for src and dest.
@@ -47,8 +63,8 @@ impl PartialEq for FlowId {
         self.transport_protocol == other.transport_protocol &&
             // same source and destination IP and port (backward), so equal
             ((self.src == other.src && self.src_port == other.src_port && self.dst == other.dst && self.dst_port == other.dst_port) ||
-            // same reverse source and destination IP and port (forward), so equal too
-            (self.src == other.dst && self.src_port == other.dst_port && self.dst == other.src && self.dst_port == other.src_port))
+                // same reverse source and destination IP and port (forward), so equal too
+                (self.src == other.dst && self.src_port == other.dst_port && self.dst == other.src && self.dst_port == other.src_port))
     }
 }
 
@@ -77,31 +93,15 @@ impl Hash for FlowId {
     }
 }
 
-impl FlowId {
-    /// Create a Flow Id with IP addresses for src and dest provided as string.
-    pub fn new(transport_protocol: u8, src: &str, dst: &str, src_port: u16, dst_port: u16) -> Self {
-        let src_ip_addr = IpAddr::from_str(src).unwrap();
-        let dst_ip_addr = IpAddr::from_str(dst).unwrap();
-
-        FlowId {
-            transport_protocol,
-            src: src_ip_addr,
-            dst: dst_ip_addr,
-            src_port,
-            dst_port,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use std::net::{IpAddr, Ipv4Addr};
-
-    use crate::flow::flow_id::FlowId;
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
+    use std::net::{IpAddr, Ipv4Addr};
 
-    fn buil_local_flow() -> FlowId {
+    use crate::flow_id::FlowId;
+
+    fn build_local_flow_id() -> FlowId {
         FlowId::new(
             17, // UDP
             "127.0.0.1",
@@ -123,7 +123,7 @@ mod tests {
 
     #[test]
     fn test_local_new() {
-        let new = buil_local_flow();
+        let new = build_local_flow_id();
         assert_eq!(new.transport_protocol, 17);
         assert_eq!(new.src, IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)));
         assert_eq!(new.dst, IpAddr::V4(Ipv4Addr::new(192, 168, 0, 1)));
@@ -157,15 +157,15 @@ mod tests {
 
     #[test]
     fn test_forward_eq() {
-        let flow1 = buil_local_flow();
+        let flow1 = build_local_flow_id();
         // the same
-        let flow2 = buil_local_flow();
+        let flow2 = build_local_flow_id();
         assert_eq!(flow1, flow2)
     }
 
     #[test]
     fn test_backward_eq() {
-        let flow1 = buil_local_flow();
+        let flow1 = build_local_flow_id();
         // the reverse
         let flow2 = FlowId::new(
             17, // UDP
@@ -180,11 +180,11 @@ mod tests {
     #[test]
     fn test_forward_hash() {
         let mut hasher1 = DefaultHasher::new();
-        let flow1 = buil_local_flow();
+        let flow1 = build_local_flow_id();
         flow1.hash(&mut hasher1);
         // the same
         let mut hasher2 = DefaultHasher::new();
-        let flow2 = buil_local_flow();
+        let flow2 = build_local_flow_id();
         flow2.hash(&mut hasher2);
         assert_eq!(hasher1.finish(), hasher2.finish());
     }
@@ -192,7 +192,7 @@ mod tests {
     #[test]
     fn test_backward_hash() {
         let mut hasher1 = DefaultHasher::new();
-        let flow1 = buil_local_flow();
+        let flow1 = build_local_flow_id();
         flow1.hash(&mut hasher1);
         // the reverse
         let mut hasher2 = DefaultHasher::new();
