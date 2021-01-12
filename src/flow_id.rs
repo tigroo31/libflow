@@ -4,6 +4,7 @@ use std::net::{IpAddr, Ipv4Addr};
 use std::str::FromStr;
 
 use serde::Serialize;
+use std::fmt;
 
 /// The flow unique identifier.
 /// A flow id is equal to
@@ -90,6 +91,16 @@ impl Hash for FlowId {
                 self.src_port.hash(state);
             }
         }
+    }
+}
+
+impl fmt::Display for FlowId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}-{}-{}-{}-{}",
+            self.src, self.dst, self.src_port, self.dst_port, self.transport_protocol
+        )
     }
 }
 
@@ -205,5 +216,11 @@ mod tests {
         );
         flow2.hash(&mut hasher2);
         assert_eq!(hasher1.finish(), hasher2.finish());
+    }
+
+    #[test]
+    fn test_display() {
+        let flow = build_local_flow_id();
+        assert_eq!(flow.to_string(), "127.0.0.1-192.168.0.1-8001-8002-17")
     }
 }
