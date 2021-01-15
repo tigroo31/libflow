@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// TCP flags enum
 /// NS – ECN-nonce concealment protection (experimental: see RFC 3540).
@@ -19,15 +19,15 @@ use serde::Serialize;
 /// SYN – Synchronize sequence numbers. Only the first packet sent from each end
 /// should have this flag set.
 /// FIN – No more data from sender.
-#[derive(Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Eq, Ord, Hash, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub enum Flag {
-    FIN,
-    PSH,
-    URG,
-    ECE,
-    SYN,
     ACK,
     CWR,
-    RST,
+    ECE,
+    FIN,
     NS,
+    PSH,
+    RST,
+    SYN,
+    URG,
 }

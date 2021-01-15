@@ -1,6 +1,6 @@
 [package]
 name = "libflow"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Pascale Borscia <pascale.borscia@orange.com>",
     "Frédéric Gardes <frederic.gardes@orange.com>"]
 license = "MIT/Apache-2.0"
@@ -17,3 +17,4 @@ edition = "2018"
 log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde_with = { version = "1.4.0", features = ["json"] }

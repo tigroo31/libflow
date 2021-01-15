@@ -1,10 +1,10 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::packet::Packet;
 
 /// The flow information.
 /// It contains forward and backward packet's.
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct FlowInformation {
     /// backward packet list
     pub backward_packet_list: Vec<Packet>,
@@ -15,7 +15,7 @@ pub struct FlowInformation {
 impl FlowInformation {
     /// Provide a flow information with empty packet lists for now.
     pub fn new() -> Self {
-        FlowInformation { ..Default::default() }
+        Self { ..Default::default() }
     }
 }
 
