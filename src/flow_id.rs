@@ -1,10 +1,10 @@
 use std::cmp::Ordering::{Equal, Greater, Less};
+use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::net::{IpAddr, Ipv4Addr};
 use std::str::FromStr;
 
-use serde::Serialize;
-use std::fmt;
+use serde::{Deserialize, Serialize};
 
 /// The flow unique identifier.
 /// A flow id is equal to
@@ -14,18 +14,18 @@ use std::fmt;
 /// another flow with the same
 /// transport protocol, and the src IP and port from one
 /// equal to the dest IP and port of the other.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct FlowId {
-    /// Layer 4 protocol (e.g TCP, UDP, ICMP)
-    pub transport_protocol: u8,
     /// Source IP address
     pub src: IpAddr,
-    /// Destination IP address
-    pub dst: IpAddr,
     /// Source port. 0 if not relevant for protocol
     pub src_port: u16,
+    /// Destination IP address
+    pub dst: IpAddr,
     /// Destination port. 0 if not relevant for protocol
     pub dst_port: u16,
+    /// Layer 4 protocol (e.g TCP, UDP, ICMP)
+    pub transport_protocol: u8,
 }
 
 impl FlowId {
@@ -34,7 +34,7 @@ impl FlowId {
         let src_ip_addr = IpAddr::from_str(src).unwrap();
         let dst_ip_addr = IpAddr::from_str(dst).unwrap();
 
-        FlowId {
+        Self {
             transport_protocol,
             src: src_ip_addr,
             dst: dst_ip_addr,
@@ -111,6 +111,57 @@ mod tests {
     use std::net::{IpAddr, Ipv4Addr};
 
     use crate::flow_id::FlowId;
+
+    fn remove_whitespace(s: &str) -> String {
+        s.split_whitespace().collect()
+    }
+
+    fn basic_flow_id() -> &'static str {
+        return r#"
+{
+   "src": "10.216.28.97",
+   "src_port": 16896,
+   "dst": "192.168.10.73",
+   "dst_port": 1817,
+   "transport_protocol": 17
+}
+"#;
+    }
+
+    fn bad_flow_id_with_string_src_port() -> &'static str {
+        return r#"
+{
+  "src": "2a01:cb06:a02d:8571:4706:7df1:bd62:5169",
+  "src_port": "44146",
+  "dst": "64:ff9b::9df0:1523",
+  "dst_port": 443,
+  "transport_protocol": 6
+}
+"#;
+    }
+
+    fn bad_flow_id_with_u32_transport_protocol() -> &'static str {
+        return r#"
+{
+  "src": "2a01:cb06:a02d:8571:4706:7df1:bd62:5169",
+  "src_port": 44146,
+  "dst": "64:ff9b::9df0:1523",
+  "dst_port": 443,
+  "transport_protocol": 42424242424242424242
+}
+"#;
+    }
+
+    fn bad_flow_id_without_dst() -> &'static str {
+        return r#"
+{
+  "src": "2a01:cb06:a02d:8571:4706:7df1:bd62:5169",
+  "src_port": "44146",
+  "dst_port": 443,
+  "transport_protocol": 6
+}
+"#;
+    }
 
     fn build_local_flow_id() -> FlowId {
         FlowId::new(
@@ -222,5 +273,34 @@ mod tests {
     fn test_display() {
         let flow = build_local_flow_id();
         assert_eq!(flow.to_string(), "127.0.0.1-192.168.0.1-8001-8002-17")
+    }
+
+    #[test]
+    fn it_can_deserialize_then_serialize_a_basic_flow_id() {
+        let json = basic_flow_id();
+        let flow_id: FlowId = serde_json::from_str(json).unwrap();
+        assert_eq!(flow_id.src, IpAddr::V4(Ipv4Addr::new(10, 216, 28, 97)));
+        assert_eq!(serde_json::to_string(&flow_id).unwrap(), remove_whitespace(json));
+    }
+
+    #[test]
+    #[should_panic]
+    fn it_should_panic_when_deserializing_a_flow_id_with_string_src_port() {
+        let json = bad_flow_id_with_string_src_port();
+        let _: FlowId = serde_json::from_str(json).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn it_should_panic_when_deserializing_a_flow_id_with_u32_transport_protocol() {
+        let json = bad_flow_id_with_u32_transport_protocol();
+        let _: FlowId = serde_json::from_str(json).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn it_should_panic_when_deserializing_a_flow_id_without_dst() {
+        let json = bad_flow_id_without_dst();
+        let _: FlowId = serde_json::from_str(json).unwrap();
     }
 }
