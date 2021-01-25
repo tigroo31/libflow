@@ -9,7 +9,7 @@ use serde_with::serde_as;
 
 use crate::flow_id::FlowId;
 use crate::flow_information::FlowInformation;
-use std::collections::hash_map::Entry;
+use std::collections::hash_map::{Entry, IntoIter};
 
 #[serde_as]
 #[derive(Serialize, Debug, Deserialize, Default)]
@@ -52,6 +52,21 @@ impl Generator {
     #[inline]
     pub fn entry(&mut self, key: FlowId) -> Entry<'_, FlowId, FlowInformation> {
         self.flow_map.entry(key)
+    }
+
+    /// used for IntoIterator trait
+    pub fn add(&mut self, key: FlowId, value: FlowInformation) {
+        self.flow_map.insert(key, value);
+    }
+}
+
+impl IntoIterator for Generator {
+    type Item = (FlowId, FlowInformation);
+
+    type IntoIter = IntoIter<FlowId, FlowInformation>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.flow_map.into_iter()
     }
 }
 
@@ -126,6 +141,7 @@ mod tests {
         "transport_protocol": 132
       },
       {
+        "sni": "www.google.com",
         "backward_packet_list": [],
         "forward_packet_list": [
           {
@@ -151,6 +167,7 @@ mod tests {
         "transport_protocol": 6
       },
       {
+        "sni": "mtalk.google.com",
         "backward_packet_list": [
           {
             "length": 218,
@@ -236,6 +253,7 @@ mod tests {
         "transport_protocol": 6
       },
       {
+        "sni": "mtalk.google.com",
         "backward_packet_list": [
           {
             "length": 218,
@@ -312,6 +330,7 @@ mod tests {
         "transport_protocol": 132
       },
       {
+        "sni": "www.google.com",
         "backward_packet_list": [],
         "forward_packet_list": [
           {
@@ -347,6 +366,7 @@ mod tests {
       "backward_packet_list": [],
       "dst": "10.15.194.131",
       "dst_port": 80,
+      "sni": "mtalk.google.com",
       "forward_packet_list": [],
       "src": "10.216.31.191",
       "src_port": 8080,
@@ -368,104 +388,12 @@ mod tests {
         assert_eq!(remove_whitespace(flow_map), remove_whitespace(json.as_str()))
     }
 
-    #[test]
-    fn it_can_read_a_basic_flow_map() {
-        let file = "target/read_basic_flow.csv";
-        create_flow_map_file(file, basic_flow_map());
-
-        let generator = read_from_file(file);
-
-        assert_eq!(generator.flow_map.len(), 1);
-        let flow_information = generator
-            .flow_map
-            .get(&FlowId::new(17, "127.0.0.1", "192.168.0.1", 8001, 8002))
-            .unwrap();
-        assert!(flow_information.forward_packet_list.is_empty());
-        assert!(flow_information.backward_packet_list.is_empty());
-    }
-
-    #[test]
-    fn it_can_read_a_complete_flow_map() {
-        let file = "target/read_complete_flow.csv";
-        create_flow_map_file(file, complete_flow_map_version_recto());
-
-        let generator = read_from_file(file);
-
-        assert_eq!(generator.flow_map.len(), 2);
-
-        let mut flow_information = generator
-            .flow_map
-            .get(&FlowId::new(132, "10.216.31.192", "10.15.194.132", 0, 0))
-            .unwrap();
-        assert_eq!(flow_information.backward_packet_list.len(), 0);
-        assert_eq!(flow_information.forward_packet_list.len(), 1);
-        let packet = flow_information.forward_packet_list.get(0).unwrap();
-        assert_eq!(packet.length, 0);
-        assert_eq!(packet.timestamp, Duration::new(1595324876, 73920000));
-        assert_eq!(packet.flag_list, BTreeSet::default());
-        assert_eq!(packet.network_protocol, 2048);
-        assert_eq!(packet.network_header_length, Some(5));
-        assert_eq!(packet.position, 1);
-
-        flow_information = generator
-            .flow_map
-            .get(&FlowId::new(
-                6,
-                "2a01:cb06:a02d:8571:4706:7df1:bd62:5169",
-                "2a00:1450:4007:810::2004",
-                42254,
-                443,
-            ))
-            .unwrap();
-
-        assert_eq!(flow_information.backward_packet_list.len(), 2);
-        let mut packet = flow_information.backward_packet_list.get(1).unwrap();
-        assert_eq!(packet.length, 882);
-        assert_eq!(packet.timestamp, Duration::new(1595324884, 248056000));
-        let mut flag_list = BTreeSet::new();
-        flag_list.insert(Flag::ACK);
-        assert_eq!(packet.flag_list, flag_list);
-        assert_eq!(packet.network_protocol, 34525);
-        assert_eq!(packet.network_header_length, None);
-        assert_eq!(packet.position, 196);
-
-        assert_eq!(flow_information.forward_packet_list.len(), 3);
-        packet = flow_information.forward_packet_list.get(2).unwrap();
-        assert_eq!(packet.length, 234);
-        assert_eq!(packet.timestamp, Duration::new(1595324884, 158344000));
-        flag_list.insert(Flag::CWR);
-        flag_list.insert(Flag::ECE);
-        assert_eq!(packet.flag_list, flag_list);
-        assert_eq!(packet.network_protocol, 34525);
-        assert_eq!(packet.network_header_length, None);
-        assert_eq!(packet.position, 194);
-    }
-
-    #[test]
-    fn it_can_write_a_basic_flow_map() {
-        let file = "target/write_basic_flow.csv";
-        let mut generator = Generator::new();
-        let flow_id = FlowId::new(
-            17, // UDP
-            "127.0.0.1",
-            "192.168.0.1",
-            8001,
-            8002,
-        );
-        generator.flow_map.insert(flow_id, FlowInformation::default());
-
-        write_to_file(&generator, file);
-
-        assert_file_equal_to_flow_map(file, basic_flow_map());
-    }
-
-    #[test]
-    fn it_can_write_a_complete_flow_map() {
-        let file = "target/write_complete_flow.csv";
+    fn create_generator_with_complete_flow() -> Generator {
         let mut generator = Generator::new();
 
         let flow_id_1 = FlowId::new(132, "10.216.31.192", "10.15.194.132", 0, 0);
         let mut flow_information_1 = FlowInformation::new();
+        flow_information_1.sni = Some("www.google.com".to_string());
         flow_information_1.forward_packet_list.push(Packet {
             length: 0,
             timestamp: Duration::new(1595324876, 73920000),
@@ -474,7 +402,7 @@ mod tests {
             network_header_length: Some(5),
             position: 1,
         });
-        generator.flow_map.insert(flow_id_1, flow_information_1);
+        generator.add(flow_id_1, flow_information_1);
 
         let flow_id_2 = FlowId::new(
             6,
@@ -484,6 +412,7 @@ mod tests {
             443,
         );
         let mut flow_information_2 = FlowInformation::new();
+        flow_information_2.sni = Some("mtalk.google.com".to_string());
         let mut flag_list = BTreeSet::new();
         flag_list.insert(Flag::ACK);
         flow_information_2.backward_packet_list.push(Packet {
@@ -533,7 +462,109 @@ mod tests {
             network_header_length: None,
             position: 194,
         });
-        generator.flow_map.insert(flow_id_2, flow_information_2);
+        generator.add(flow_id_2, flow_information_2);
+        generator
+    }
+
+    #[test]
+    fn it_can_read_a_basic_flow_map() {
+        let file = "target/read_basic_flow.json";
+        create_flow_map_file(file, basic_flow_map());
+
+        let generator = read_from_file(file);
+
+        assert_eq!(generator.flow_map.len(), 1);
+        let flow_information = generator
+            .flow_map
+            .get(&FlowId::new(17, "127.0.0.1", "192.168.0.1", 8001, 8002))
+            .unwrap();
+        assert!(flow_information.forward_packet_list.is_empty());
+        assert!(flow_information.backward_packet_list.is_empty());
+    }
+
+    #[test]
+    fn it_can_read_a_complete_flow_map() {
+        let file = "target/read_complete_flow.json";
+        create_flow_map_file(file, complete_flow_map_version_recto());
+
+        let generator = read_from_file(file);
+
+        assert_eq!(generator.flow_map.len(), 2);
+
+        let mut flow_information = generator
+            .flow_map
+            .get(&FlowId::new(132, "10.216.31.192", "10.15.194.132", 0, 0))
+            .unwrap();
+        assert_eq!(flow_information.sni, Some("www.google.com".to_string()));
+        assert_eq!(flow_information.backward_packet_list.len(), 0);
+        assert_eq!(flow_information.forward_packet_list.len(), 1);
+        let packet = flow_information.forward_packet_list.get(0).unwrap();
+        assert_eq!(packet.length, 0);
+        assert_eq!(packet.timestamp, Duration::new(1595324876, 73920000));
+        assert_eq!(packet.flag_list, BTreeSet::default());
+        assert_eq!(packet.network_protocol, 2048);
+        assert_eq!(packet.network_header_length, Some(5));
+        assert_eq!(packet.position, 1);
+
+        flow_information = generator
+            .flow_map
+            .get(&FlowId::new(
+                6,
+                "2a01:cb06:a02d:8571:4706:7df1:bd62:5169",
+                "2a00:1450:4007:810::2004",
+                42254,
+                443,
+            ))
+            .unwrap();
+
+        assert_eq!(flow_information.sni, Some("mtalk.google.com".to_string()));
+        assert_eq!(flow_information.backward_packet_list.len(), 2);
+        let mut packet = flow_information.backward_packet_list.get(1).unwrap();
+        assert_eq!(packet.length, 882);
+        assert_eq!(packet.timestamp, Duration::new(1595324884, 248056000));
+        let mut flag_list = BTreeSet::new();
+        flag_list.insert(Flag::ACK);
+        assert_eq!(packet.flag_list, flag_list);
+        assert_eq!(packet.network_protocol, 34525);
+        assert_eq!(packet.network_header_length, None);
+        assert_eq!(packet.position, 196);
+
+        assert_eq!(flow_information.forward_packet_list.len(), 3);
+        packet = flow_information.forward_packet_list.get(2).unwrap();
+        assert_eq!(packet.length, 234);
+        assert_eq!(packet.timestamp, Duration::new(1595324884, 158344000));
+        flag_list.insert(Flag::CWR);
+        flag_list.insert(Flag::ECE);
+        assert_eq!(packet.flag_list, flag_list);
+        assert_eq!(packet.network_protocol, 34525);
+        assert_eq!(packet.network_header_length, None);
+        assert_eq!(packet.position, 194);
+    }
+
+    #[test]
+    fn it_can_write_a_basic_flow_map() {
+        let file = "target/write_basic_flow.csv";
+        let mut generator = Generator::new();
+        let flow_id = FlowId::new(
+            17, // UDP
+            "127.0.0.1",
+            "192.168.0.1",
+            8001,
+            8002,
+        );
+        generator.add(flow_id, FlowInformation::default());
+
+        write_to_file(&generator, file);
+
+        assert_file_equal_to_flow_map(file, basic_flow_map());
+    }
+
+    #[test]
+    fn it_can_write_a_complete_flow_map() {
+        let file = "target/write_complete_flow.csv";
+
+        let generator = create_generator_with_complete_flow();
+
         write_to_file(&generator, file);
 
         let result = panic::catch_unwind(|| {
@@ -559,8 +590,36 @@ mod tests {
     #[test]
     #[should_panic]
     fn it_should_panic_when_read_a_flow_path_with_packet_list() {
-        let file = "target/bad_packet_list_flow.csv";
+        let file = "target/bad_packet_list_flow.json";
         create_flow_map_file(file, bad_flow_map_with_packet_list());
         let mut _generator = read_from_file(file);
+    }
+
+    #[test]
+    fn it_can_browse_a_complete_flow_map() {
+        let generator = create_generator_with_complete_flow();
+
+        assert_eq!(generator.len(), 2);
+
+        let expected_flow_id_1 = FlowId::new(132, "10.216.31.192", "10.15.194.132", 0, 0);
+        let expected_flow_id_2 = FlowId::new(
+            6,
+            "2a01:cb06:a02d:8571:4706:7df1:bd62:5169",
+            "2a00:1450:4007:810::2004",
+            42254,
+            443,
+        );
+        assert_eq!(
+            generator.into_iter().fold(0, |n, (flow_id, _flow_information)| {
+                let result = panic::catch_unwind(|| {
+                    assert_eq!(flow_id, expected_flow_id_1);
+                });
+                if result.is_err() {
+                    assert_eq!(flow_id, expected_flow_id_2);
+                };
+                n + 1
+            }),
+            2
+        );
     }
 }

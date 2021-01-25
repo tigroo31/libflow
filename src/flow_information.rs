@@ -4,8 +4,11 @@ use crate::packet::Packet;
 
 /// The flow information.
 /// It contains forward and backward packet's.
+#[serde_with::skip_serializing_none]
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct FlowInformation {
+    /// SNI field
+    pub sni: Option<String>,
     /// backward packet list
     pub backward_packet_list: Vec<Packet>,
     /// forward packet list
@@ -26,6 +29,7 @@ mod tests {
     #[test]
     fn test_default() {
         let default = FlowInformation::default();
+        assert!(default.sni.is_none());
         assert!(default.backward_packet_list.is_empty());
         assert!(default.forward_packet_list.is_empty());
     }
@@ -33,6 +37,7 @@ mod tests {
     #[test]
     fn test_new() {
         let new = FlowInformation::new();
+        assert!(new.sni.is_none());
         assert!(new.backward_packet_list.is_empty());
         assert!(new.forward_packet_list.is_empty());
     }
