@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// another flow with the same
 /// transport protocol, and the src IP and port from one
 /// equal to the dest IP and port of the other.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct FlowId {
     /// Source IP address
     pub src: IpAddr,
