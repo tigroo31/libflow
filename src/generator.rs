@@ -48,6 +48,12 @@ impl Generator {
         self.flow_map.get_mut(k)
     }
 
+    /// Returns `true` if the map contains a value for the specified key.
+    #[inline]
+    pub fn contains_key(&self, k: &FlowId) -> bool {
+        self.flow_map.contains_key(k)
+    }
+
     /// Gets the given key's corresponding entry in the map for in-place manipulation.
     #[inline]
     pub fn entry(&mut self, key: FlowId) -> Entry<'_, FlowId, FlowInformation> {
