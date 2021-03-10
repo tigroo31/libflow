@@ -8,7 +8,7 @@ use crate::flag::Flag;
 #[serde_with::skip_serializing_none]
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Packet {
-    // number of bytes
+    // number of bytes (potentially just the assembly segment)
     pub length: u64,
     /// timestamp
     pub timestamp: Duration,
@@ -16,8 +16,10 @@ pub struct Packet {
     pub flag_list: BTreeSet<Flag>,
     /// layer 3 protocol (e.g IPv4, IPv6)
     pub network_protocol: u16,
-    /// layer 3 header size
+    /// layer 3 header size (number of bytes)
     pub network_header_length: Option<usize>,
+    /// layer 3 payload size (number of bytes)
+    pub network_payload_length: Option<usize>,
     // position into the set considered
     pub position: usize,
 }
@@ -51,6 +53,7 @@ mod tests {
   "flag_list": [],
   "network_protocol": 34525,
   "network_header_length": 5,
+  "network_payload_length": 106,
   "position": 28456
 }
 "#;
@@ -67,6 +70,7 @@ mod tests {
   "flag_list": ["ACK","CWR","ECE","FIN","NS","PSH","RST","SYN","URG"],
   "network_protocol": 17,
   "network_header_length": 5,
+  "network_payload_length": 105,
   "position": 1234
 }
 "#;
@@ -83,6 +87,7 @@ mod tests {
   "flag_list": [],
   "network_protocol": "6",
   "network_header_length": 10,
+  "network_payload_length": 104,
   "position": 2345
 }
 "#;
@@ -99,6 +104,7 @@ mod tests {
   "flag_list": [],
   "network_protocol": 6,
   "network_header_length": 7,
+  "network_payload_length": 103,
   "position": 42424242424242424242
 }
 "#;
@@ -114,6 +120,7 @@ mod tests {
   },
   "network_protocol": 6,
   "network_header_length": 7,
+  "network_payload_length": 53,
   "position": 42
 }
 "#;
@@ -126,6 +133,7 @@ mod tests {
         assert_eq!(default.timestamp, Duration::default());
         assert_eq!(default.flag_list, BTreeSet::default());
         assert_eq!(default.network_protocol, 0);
+        assert_eq!(default.network_payload_length, None);
         assert_eq!(default.network_header_length, None);
         assert_eq!(default.position, 0);
     }
@@ -137,6 +145,7 @@ mod tests {
         assert_eq!(new.timestamp, Duration::default());
         assert_eq!(new.flag_list, BTreeSet::default());
         assert_eq!(new.network_protocol, 0);
+        assert_eq!(new.network_payload_length, None);
         assert_eq!(new.network_header_length, None);
         assert_eq!(new.position, 0);
     }
