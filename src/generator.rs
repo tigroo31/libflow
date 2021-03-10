@@ -159,6 +159,7 @@ mod tests {
             "flag_list": [],
             "network_protocol": 2048,
             "network_header_length": 5,
+            "network_payload_length": 0,
             "position": 1
           }
         ]        
@@ -224,6 +225,7 @@ mod tests {
             ],
             "network_protocol": 34525,
             "network_header_length": 5,
+            "network_payload_length": 104,
             "position": 189
           },
           {
@@ -310,6 +312,7 @@ mod tests {
             ],
             "network_protocol": 34525,
             "network_header_length": 5,
+            "network_payload_length": 104,
             "position": 189
           },
           {
@@ -348,6 +351,7 @@ mod tests {
             "flag_list": [],
             "network_protocol": 2048,
             "network_header_length": 5,
+            "network_payload_length": 0,
             "position": 1
           }
         ]        
@@ -405,6 +409,7 @@ mod tests {
             timestamp: Duration::new(1595324876, 73920000),
             flag_list: BTreeSet::default(),
             network_protocol: 2048,
+            network_payload_length: Some(0),
             network_header_length: Some(5),
             position: 1,
         });
@@ -427,6 +432,7 @@ mod tests {
             // assumed clone, we provide a copy
             flag_list: flag_list.clone(),
             network_protocol: 34525,
+            network_payload_length: None,
             network_header_length: None,
             position: 182,
         });
@@ -436,6 +442,7 @@ mod tests {
             // assumed clone, we provide a copy
             flag_list: flag_list.clone(),
             network_protocol: 34525,
+            network_payload_length: None,
             network_header_length: None,
             position: 196,
         });
@@ -445,6 +452,7 @@ mod tests {
             // assumed clone, we provide a copy
             flag_list: flag_list.clone(),
             network_protocol: 34525,
+            network_payload_length: None,
             network_header_length: None,
             position: 178,
         });
@@ -454,6 +462,7 @@ mod tests {
             // assumed clone, we provide a copy
             flag_list: flag_list.clone(),
             network_protocol: 34525,
+            network_payload_length: Some(104),
             network_header_length: Some(5),
             position: 189,
         });
@@ -465,6 +474,7 @@ mod tests {
             // last flag list, we move
             flag_list,
             network_protocol: 34525,
+            network_payload_length: None,
             network_header_length: None,
             position: 194,
         });
