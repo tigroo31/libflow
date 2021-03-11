@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FlowId","The flow unique identifier. A flow id is equal to another flow with the same transport protocol, src IP and port and dest IP and port. A flow id is also equal to another flow with the same transport protocol, and the src IP and port from one equal to the dest IP and port of the other."]]});

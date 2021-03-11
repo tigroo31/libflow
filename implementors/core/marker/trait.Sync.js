@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["libflow"] = [{"text":"impl Sync for Flag","synthetic":true,"types":[]},{"text":"impl Sync for FlowId","synthetic":true,"types":[]},{"text":"impl Sync for FlowInformation","synthetic":true,"types":[]},{"text":"impl Sync for Generator","synthetic":true,"types":[]},{"text":"impl Sync for Packet","synthetic":true,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

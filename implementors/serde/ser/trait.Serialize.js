@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["libflow"] = [{"text":"impl Serialize for Flag","synthetic":false,"types":[]},{"text":"impl Serialize for FlowId","synthetic":false,"types":[]},{"text":"impl Serialize for FlowInformation","synthetic":false,"types":[]},{"text":"impl Serialize for Generator","synthetic":false,"types":[]},{"text":"impl Serialize for Packet","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
