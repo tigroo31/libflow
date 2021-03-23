@@ -91,7 +91,7 @@ pub fn write_to_file<P: AsRef<Path>>(generator: &Generator, path: P) {
     let writer = BufWriter::new(file);
 
     // write the JSON contents to the file
-    serde_json::to_writer_pretty(writer, generator).unwrap();
+    serde_json::to_writer(writer, generator).unwrap();
 }
 
 #[cfg(test)]
