@@ -10,6 +10,8 @@ use crate::flag::Flag;
 pub struct Packet {
     // number of bytes (potentially just the assembly segment)
     pub length: u64,
+    // window size value
+    pub window: Option<u16>,
     /// timestamp
     pub timestamp: Duration,
     /// list of flags
@@ -63,6 +65,7 @@ mod tests {
         return r#"
 {
   "length": 55,
+  "window": 2893,
   "timestamp": {
     "secs": 1595325118,
     "nanos": 502092010
@@ -80,6 +83,7 @@ mod tests {
         return r#"
 {
   "length": 44,
+  "windows": 2882,
   "timestamp": {
     "secs": 1595325119,
     "nanos": 502092020
@@ -97,6 +101,7 @@ mod tests {
         return r#"
 {
   "length": 33,
+  "windows": 2871,
   "timestamp": {
     "secs": 1595325120,
     "nanos": 502092030
@@ -114,6 +119,7 @@ mod tests {
         return r#"
 {
   "length": 23,
+  "windows": 2860,
   "timestamp": {
     "secs": 1595325130,
     "nanos": 502092031
@@ -130,6 +136,7 @@ mod tests {
     fn test_default() {
         let default = Packet::default();
         assert_eq!(default.length, 0);
+        assert_eq!(default.window, None);
         assert_eq!(default.timestamp, Duration::default());
         assert_eq!(default.flag_list, BTreeSet::default());
         assert_eq!(default.network_protocol, 0);
@@ -142,6 +149,7 @@ mod tests {
     fn test_new() {
         let new = Packet::new();
         assert_eq!(new.length, 0);
+        assert_eq!(new.window, None);
         assert_eq!(new.timestamp, Duration::default());
         assert_eq!(new.flag_list, BTreeSet::default());
         assert_eq!(new.network_protocol, 0);

@@ -1,3 +1,4 @@
+use std::collections::hash_map::{Entry, IntoIter};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
@@ -9,7 +10,6 @@ use serde_with::serde_as;
 
 use crate::flow_id::FlowId;
 use crate::flow_information::FlowInformation;
-use std::collections::hash_map::{Entry, IntoIter};
 
 #[serde_as]
 #[derive(Serialize, Debug, Deserialize, Default)]
@@ -152,6 +152,7 @@ mod tests {
         "forward_packet_list": [
           {
             "length": 0,
+            "window": 0,
             "timestamp": {
               "secs": 1595324876,
               "nanos": 73920000
@@ -190,6 +191,7 @@ mod tests {
           },
           {
             "length": 882,
+            "window": 3222,
             "timestamp": {
               "secs": 1595324884,
               "nanos": 248056000
@@ -204,6 +206,7 @@ mod tests {
         "forward_packet_list": [
           {
             "length": 558,
+            "window": 28,
             "timestamp": {
               "secs": 1595324883,
               "nanos": 910142000
@@ -216,6 +219,7 @@ mod tests {
           },
           {
             "length": 64,
+            "window": 38,
               "timestamp": {
               "secs": 1595324884,
               "nanos": 36342000
@@ -230,6 +234,7 @@ mod tests {
           },
           {
             "length": 234,
+            "window": 22240,
             "timestamp": {
               "secs": 1595324884,
               "nanos": 158344000
@@ -277,6 +282,7 @@ mod tests {
           },
           {
             "length": 882,
+            "window": 3222,
             "timestamp": {
               "secs": 1595324884,
               "nanos": 248056000
@@ -291,6 +297,7 @@ mod tests {
         "forward_packet_list": [
           {
             "length": 558,
+            "window": 28,
             "timestamp": {
               "secs": 1595324883,
               "nanos": 910142000
@@ -303,7 +310,8 @@ mod tests {
           },
           {
             "length": 64,
-              "timestamp": {
+            "window": 38,
+            "timestamp": {
               "secs": 1595324884,
               "nanos": 36342000
             },
@@ -317,6 +325,7 @@ mod tests {
           },
           {
             "length": 234,
+            "window": 22240,
             "timestamp": {
               "secs": 1595324884,
               "nanos": 158344000
@@ -344,6 +353,7 @@ mod tests {
         "forward_packet_list": [
           {
             "length": 0,
+            "window": 0,
             "timestamp": {
               "secs": 1595324876,
               "nanos": 73920000
@@ -406,6 +416,7 @@ mod tests {
         flow_information_1.sni = Some("www.google.com".to_string());
         flow_information_1.forward_packet_list.push(Packet {
             length: 0,
+            window: Some(0),
             timestamp: Duration::new(1595324876, 73920000),
             flag_list: BTreeSet::default(),
             network_protocol: 2048,
@@ -428,6 +439,7 @@ mod tests {
         flag_list.insert(Flag::ACK);
         flow_information_2.backward_packet_list.push(Packet {
             length: 218,
+            window: None,
             timestamp: Duration::new(1595324883, 969259000),
             // assumed clone, we provide a copy
             flag_list: flag_list.clone(),
@@ -438,6 +450,7 @@ mod tests {
         });
         flow_information_2.backward_packet_list.push(Packet {
             length: 882,
+            window: Some(3222),
             timestamp: Duration::new(1595324884, 248056000),
             // assumed clone, we provide a copy
             flag_list: flag_list.clone(),
@@ -448,6 +461,7 @@ mod tests {
         });
         flow_information_2.forward_packet_list.push(Packet {
             length: 558,
+            window: Some(28),
             timestamp: Duration::new(1595324883, 910142000),
             // assumed clone, we provide a copy
             flag_list: flag_list.clone(),
@@ -458,6 +472,7 @@ mod tests {
         });
         flow_information_2.forward_packet_list.push(Packet {
             length: 64,
+            window: Some(38),
             timestamp: Duration::new(1595324884, 36342000),
             // assumed clone, we provide a copy
             flag_list: flag_list.clone(),
@@ -470,6 +485,7 @@ mod tests {
         flag_list.insert(Flag::ECE);
         flow_information_2.forward_packet_list.push(Packet {
             length: 234,
+            window: Some(22240),
             timestamp: Duration::new(1595324884, 158344000),
             // last flag list, we move
             flag_list,
@@ -516,6 +532,7 @@ mod tests {
         assert_eq!(flow_information.forward_packet_list.len(), 1);
         let packet = flow_information.forward_packet_list.get(0).unwrap();
         assert_eq!(packet.length, 0);
+        assert_eq!(packet.window, Some(0));
         assert_eq!(packet.timestamp, Duration::new(1595324876, 73920000));
         assert_eq!(packet.flag_list, BTreeSet::default());
         assert_eq!(packet.network_protocol, 2048);
@@ -537,6 +554,7 @@ mod tests {
         assert_eq!(flow_information.backward_packet_list.len(), 2);
         let mut packet = flow_information.backward_packet_list.get(1).unwrap();
         assert_eq!(packet.length, 882);
+        assert_eq!(packet.window, Some(3222));
         assert_eq!(packet.timestamp, Duration::new(1595324884, 248056000));
         let mut flag_list = BTreeSet::new();
         flag_list.insert(Flag::ACK);
@@ -548,6 +566,7 @@ mod tests {
         assert_eq!(flow_information.forward_packet_list.len(), 3);
         packet = flow_information.forward_packet_list.get(2).unwrap();
         assert_eq!(packet.length, 234);
+        assert_eq!(packet.window, Some(22240));
         assert_eq!(packet.timestamp, Duration::new(1595324884, 158344000));
         flag_list.insert(Flag::CWR);
         flag_list.insert(Flag::ECE);
