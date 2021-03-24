@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["libflow"] = [{"text":"impl UnwindSafe for Flag","synthetic":true,"types":[]},{"text":"impl UnwindSafe for FlowId","synthetic":true,"types":[]},{"text":"impl UnwindSafe for FlowInformation","synthetic":true,"types":[]},{"text":"impl UnwindSafe for Generator","synthetic":true,"types":[]},{"text":"impl UnwindSafe for Packet","synthetic":true,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
